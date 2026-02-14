@@ -71,6 +71,19 @@ class Script(scripts.Script):
         delimiter = ", " if variations_delimiter == "comma" else " "
 
         all_prompts = []
+
+        brace_start = prompt.find("{")
+        brace_end = prompt.rfind("}")
+
+        prompt_start = ""
+        prompt_end = ""
+
+        if brace_start != -1 and brace_end != -1 and brace_start < brace_end:
+            prompt_start = prompt[:brace_start]
+            prompt_end = prompt[brace_end+ 1:]
+            original_prompt = prompt[brace_start + 1:brace_end]
+
+
         prompt_matrix_parts = original_prompt.split("|")
         combination_count = 2 ** (len(prompt_matrix_parts) - 1)
         for combination_num in range(combination_count):
@@ -81,7 +94,7 @@ class Script(scripts.Script):
             else:
                 selected_prompts = [prompt_matrix_parts[0]] + selected_prompts
 
-            all_prompts.append(delimiter.join(selected_prompts))
+            all_prompts.append(prompt_start + delimiter.join(selected_prompts) + prompt_end)
 
         p.n_iter = math.ceil(len(all_prompts) / p.batch_size)
         p.do_not_save_grid = True
